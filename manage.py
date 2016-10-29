@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+#coding=utf-8
 import os
+import codecs
+import sys
+
 COV = None
 if os.environ.get('FLASK_COVERAGE'):
     import coverage
@@ -14,21 +18,34 @@ if os.path.exists('.env'):
             os.environ[var[0]] = var[1]
 
 from app import create_app, db
-from app.models import User, Follow, Role, Permission, Post, Comment
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
-
+import sqlacodegen
+from sqlacodegen.codegen import CodeGenerator
+from sqlalchemy import MetaData
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
 
 
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Follow=Follow, Role=Role,
-                Permission=Permission, Post=Post, Comment=Comment)
+    return dict(app=app, db=db,migrate=migrate)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
+@manager.command
+def modelgen(views=True,outfile=None,tables=None):
+    """生成model代码
+    views:是否包含视图
+    outfile:生成文件路径
+    tables:包含的表，用,分隔。
+    """
+    metadata = MetaData(db.engine)
+    tables = tables.split(',') if tables else None
+    metadata.reflect(db.engine,None,views,tables)
+    outfile = codecs.open(outfile, 'w', encoding='utf-8') if outfile else sys.stdout
+    generator=CodeGenerator(metadata)
+    generator.render(outfile)
 
 @manager.command
 def test(coverage=False):
@@ -65,16 +82,13 @@ def profile(length=25, profile_dir=None):
 def deploy():
     """Run deployment tasks."""
     from flask_migrate import upgrade
-    from app.models import Role, User
 
     # migrate database to latest revision
     upgrade()
 
     # create user roles
-    Role.insert_roles()
 
     # create self-follows for all users
-    User.add_self_follows()
 
 
 if __name__ == '__main__':
