@@ -20,8 +20,7 @@ if os.path.exists('.env'):
 from app import create_app, db
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
-import sqlacodegen
-from sqlacodegen.codegen import CodeGenerator
+from app.codemaker.modelgen import ModelGen
 from sqlalchemy import MetaData
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -43,9 +42,9 @@ def modelgen(views=True,outfile=None,tables=None):
     metadata = MetaData(db.engine)
     tables = tables.split(',') if tables else None
     metadata.reflect(db.engine,None,views,tables)
-    outfile = codecs.open(outfile, 'w', encoding='utf-8') if outfile else sys.stdout
-    generator=CodeGenerator(metadata)
-    generator.render(outfile)
+    ofile = codecs.open(outfile, 'w', encoding='utf-8') if outfile else sys.stdout
+    generator = ModelGen(metadata)
+    print>> ofile,generator.render()
 
 @manager.command
 def test(coverage=False):
