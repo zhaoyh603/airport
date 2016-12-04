@@ -38,6 +38,8 @@ def modelgen(views=True,outfile=None,tables=None):
     views:是否包含视图
     outfile:生成文件路径
     tables:包含的表，用,分隔。
+    sdfsd
+
     """
     metadata = MetaData(db.engine)
     tables = tables.split(',') if tables else None
