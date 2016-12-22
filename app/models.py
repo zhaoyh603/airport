@@ -60,6 +60,15 @@ class Follow(db.Model):
                             primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+from sqlalchemy import Column, Integer, String
+
+class AsUser(db.Model):
+    __tablename__ = 'as_user'
+
+    user_id = Column(Integer, primary_key=True)
+    user_name = Column(String(45))
+    user_email = Column(String(45))
+    passwd = Column(String(45))
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'

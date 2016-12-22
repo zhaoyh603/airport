@@ -29,7 +29,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:@localhost/airport'
+    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:`@localhost/airport'
 
 class TestingConfig(Config):
     TESTING = True
