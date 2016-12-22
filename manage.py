@@ -36,6 +36,7 @@ manager.add_command('db', MigrateCommand)
 def modelgen(views=True,outfile=None,tables=None):
     """生成model代码
     views:是否包含视图
+    sdasd 
     outfile:生成文件路径
     tables:包含的表，用,分隔。
     sdfsd
